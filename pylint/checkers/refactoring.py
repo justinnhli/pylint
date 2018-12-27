@@ -204,6 +204,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "following a chain of ifs, all of them containing a "
             "raise statement.",
         ),
+        "R1721": (
+            "Boolean operator on a constant is useless",
+            "useless-and-or",
+            "FIXME",
+        ),
     }
     options = (
         (
