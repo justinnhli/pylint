@@ -791,13 +791,22 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 self.add_message("chained-comparison", node=node)
                 break
 
+    def _check_useless_and_or(self, node):
+        if node.op not in ("and", "or"):
+            return
+        for const_node in node.values:
+            if isinstance(const_node, astroid.Const):
+                self.add_message("useless-and-or", node=node)
+                break
+
     @utils.check_messages(
-        "consider-merging-isinstance", "consider-using-in", "chained-comparison"
+        "consider-merging-isinstance", "consider-using-in", "chained-comparison", "useless-and-or"
     )
     def visit_boolop(self, node):
         self._check_consider_merging_isinstance(node)
         self._check_consider_using_in(node)
         self._check_chained_comparison(node)
+        self._check_useless_and_or(node)
 
     @staticmethod
     def _is_simple_assignment(node):
