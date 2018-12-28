@@ -805,11 +805,18 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
         for const_node in node.values:
             if isinstance(const_node, astroid.Const):
-                self.add_message("boolean-operator-on-constant", node=node, args=(node.op, const_node.value))
+                self.add_message(
+                    "boolean-operator-on-constant",
+                    node=node,
+                    args=(node.op, const_node.value),
+                )
                 break
 
     @utils.check_messages(
-        "consider-merging-isinstance", "consider-using-in", "chained-comparison", "boolean-operator-on-constant"
+        "consider-merging-isinstance",
+        "consider-using-in",
+        "chained-comparison",
+        "boolean-operator-on-constant",
     )
     def visit_boolop(self, node):
         self._check_consider_merging_isinstance(node)
@@ -820,11 +827,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def _check_not_on_constant(self, node):
         if node.op != "not" or not isinstance(node.operand, astroid.Const):
             return
-        self.add_message("boolean-operator-on-constant", node=node, args=(node.op, node.operand.value))
+        self.add_message(
+            "boolean-operator-on-constant",
+            node=node,
+            args=(node.op, node.operand.value),
+        )
 
-    @utils.check_messages(
-        "boolean-operator-on-constant"
-    )
+    @utils.check_messages("boolean-operator-on-constant")
     def visit_unaryop(self, node):
         self._check_not_on_constant(node)
 
