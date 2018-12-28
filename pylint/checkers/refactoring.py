@@ -205,7 +205,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "raise statement.",
         ),
         "R1721": (
-            'Using Boolean operator on a constant %s',
+            "Using Boolean operator on a constant %s",
             "boolean-operator-on-constant",
             "Used when a Boolean operator is used on a constant. "
             "`and True` and `or False` can be safely deleted; "
@@ -754,7 +754,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         Add a refactoring message if a boolOp contains comparison like a < b and b < c,
         which can be chained as a < b < c.
-        
+
         Care is taken to avoid simplifying a < b < c and b < d.
         """
         if node.op != "and" or len(node.values) < 2:
@@ -803,6 +803,18 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def _check_and_or_on_constant(self, node):
         if node.op not in ("and", "or"):
             return
+
+        _child = node
+        _parent = _child.parent
+        while isinstance(_parent, astroid.BoolOp):
+            _child = _parent
+            _parent = _child.parent
+        if not (
+            isinstance(_parent, (astroid.If, astroid.While, astroid.IfExp))
+            and _parent.test is _child
+        ):
+            return
+
         for const_node in node.values:
             if isinstance(const_node, astroid.Const):
                 self.add_message(
