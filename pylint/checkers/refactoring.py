@@ -801,9 +801,17 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 break
 
     def _check_and_or_on_constant(self, node):
+        """Check if there is an `and` or `or` on a constant.
+
+        Add a refactoring message if a if/while condition contains terms like `and True`.
+
+        Note: This check fails on `or -5` because `-5` is parsed as a unary negation operator.
+        """
         if node.op not in ("and", "or"):
             return
 
+        # make sure that we are in a chain of BoolOps that end with an If/While.
+        # this prevents messages for `if (is_none or 1) > 0:`
         _child = node
         _parent = _child.parent
         while isinstance(_parent, astroid.BoolOp):
@@ -837,6 +845,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_and_or_on_constant(node)
 
     def _check_not_on_constant(self, node):
+        """Check if there is a `not` on a constant.
+
+        Add a refactoring message if a boolOp contains comparison like `not True`.
+
+        Note: This check fails on `not -5` because `-5` is parsed as a unary negation operator.
+        """
         if node.op != "not" or not isinstance(node.operand, astroid.Const):
             return
         self.add_message(
