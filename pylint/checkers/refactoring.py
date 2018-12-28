@@ -205,9 +205,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "raise statement.",
         ),
         "R1721": (
-            "Boolean operator on a constant is useless",
-            "useless-and-or",
-            "FIXME",
+            'Using Boolean operator on a constant "%s %s"',
+            "boolean-operator-on-constant",
+            "Used when a Boolean operator is used on a constant. "
+            "`and True` and `or False` can be safely deleted; "
+            "`... or True` will always evaluate to `True`; "
+            "`... and False` will always evaluate to `False`.",
         ),
     }
     options = (
@@ -796,22 +799,22 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 self.add_message("chained-comparison", node=node)
                 break
 
-    def _check_useless_and_or(self, node):
+    def _check_and_or_on_constant(self, node):
         if node.op not in ("and", "or"):
             return
         for const_node in node.values:
             if isinstance(const_node, astroid.Const):
-                self.add_message("useless-and-or", node=node)
+                self.add_message("boolean-operator-on-constant", node=node, args=(node.op, const_node.value))
                 break
 
     @utils.check_messages(
-        "consider-merging-isinstance", "consider-using-in", "chained-comparison", "useless-and-or"
+        "consider-merging-isinstance", "consider-using-in", "chained-comparison", "boolean-operator-on-constant"
     )
     def visit_boolop(self, node):
         self._check_consider_merging_isinstance(node)
         self._check_consider_using_in(node)
         self._check_chained_comparison(node)
-        self._check_useless_and_or(node)
+        self._check_and_or_on_constant(node)
 
     @staticmethod
     def _is_simple_assignment(node):
