@@ -205,7 +205,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "raise statement.",
         ),
         "R1721": (
-            'Using Boolean operator on a constant "%s %s"',
+            'Using Boolean operator on a constant %s',
             "boolean-operator-on-constant",
             "Used when a Boolean operator is used on a constant. "
             "`and True` and `or False` can be safely deleted; "
@@ -808,7 +808,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 self.add_message(
                     "boolean-operator-on-constant",
                     node=node,
-                    args=(node.op, const_node.value),
+                    args=repr(node.op + " " + repr(const_node.value)),
                 )
                 break
 
@@ -830,7 +830,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self.add_message(
             "boolean-operator-on-constant",
             node=node,
-            args=(node.op, node.operand.value),
+            args=repr(node.op + " " + repr(node.operand.value)),
         )
 
     @utils.check_messages("boolean-operator-on-constant")
