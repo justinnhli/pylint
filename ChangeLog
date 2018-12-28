@@ -75,6 +75,15 @@ Release date: TBA
   Previous version incorrectly detects `a < b < c and b < d` and fails to
   detect `a < b < c and c < d`.
 
+* Add ``boolean-operator-on-constant``
+
+  Used when a Boolean test (in an `if` or `while`) has an operation on a
+  constant, such as `... and True`.
+  * `and True` and `or False` can be safely deleted
+  * `... or True` will always evaluate to `True`
+  * `... and False` will always evaluate to `False`
+  * `not False` should be `True` and vice versa
+
 What's New in Pylint 2.2.2?
 ===========================
 
