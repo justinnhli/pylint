@@ -210,7 +210,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Used when a Boolean operator is used on a constant. "
             "`and True` and `or False` can be safely deleted; "
             "`... or True` will always evaluate to `True`; "
-            "`... and False` will always evaluate to `False`.",
+            "`... and False` will always evaluate to `False`; "
+            "`not False` should be `True` and vice versa.",
         ),
     }
     options = (
@@ -815,6 +816,17 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_consider_using_in(node)
         self._check_chained_comparison(node)
         self._check_and_or_on_constant(node)
+
+    def _check_not_on_constant(self, node):
+        if node.op != "not" or not isinstance(node.operand, astroid.Const):
+            return
+        self.add_message("boolean-operator-on-constant", node=node, args=(node.op, node.operand.value))
+
+    @utils.check_messages(
+        "boolean-operator-on-constant"
+    )
+    def visit_unaryop(self, node):
+        self._check_not_on_constant(node)
 
     @staticmethod
     def _is_simple_assignment(node):
